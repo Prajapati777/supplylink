@@ -31,7 +31,7 @@ public class SupplierServiceImplArraylist implements SupplierService
 
     @Override
     public void emptyArrayList() {
-        supplierList = new ArrayList<>();
+        supplierList.clear();
     }
 
 }
