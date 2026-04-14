@@ -1,58 +1,95 @@
 package com.edutech.progressive.entity;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 public class Warehouse implements Comparable<Warehouse> {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int warehouseId;
-    private int supplierId;
+
+    @ManyToOne
+    @JoinColumn(name = "supplier_id")
+    @JsonIgnoreProperties("warehouses")
+    private Supplier supplier;
+
+    @OneToMany(mappedBy = "warehouse")
+    @JsonIgnoreProperties("warehouse")
+    private List<Product> products;
+
     private String warehouseName;
     private String location;
     private int capacity;
+
     public Warehouse() {
     }
-    public Warehouse(int warehouseId, int supplierId, String warehouseName, String location, int capacity) {
+
+    public Warehouse(int warehouseId, Supplier supplier, String warehouseName, String location, int capacity) {
         this.warehouseId = warehouseId;
-        this.supplierId = supplierId;
+        this.supplier = supplier;
         this.warehouseName = warehouseName;
         this.location = location;
         this.capacity = capacity;
     }
+
     public int getWarehouseId() {
         return warehouseId;
     }
+
     public void setWarehouseId(int warehouseId) {
         this.warehouseId = warehouseId;
     }
-    public int getSupplierId() {
-        return supplierId;
+
+    public Supplier getSupplier() {
+        return supplier;
     }
-    public void setSupplierId(int supplierId) {
-        this.supplierId = supplierId;
+
+    public void setSupplier(Supplier supplier) {
+        this.supplier = supplier;
     }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
+
     public String getWarehouseName() {
         return warehouseName;
     }
+
     public void setWarehouseName(String warehouseName) {
         this.warehouseName = warehouseName;
     }
+
     public String getLocation() {
         return location;
     }
+
     public void setLocation(String location) {
         this.location = location;
     }
+
     public int getCapacity() {
         return capacity;
     }
+
     public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
+
     @Override
     public int compareTo(Warehouse o) {
         return Double.compare(o.getCapacity(), this.getCapacity());

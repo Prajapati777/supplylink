@@ -16,5 +16,5 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Integer> {
     @Transactional
     void deleteByWarehouseId(int warehouseId);
 
-    List<Warehouse> findBySupplierId(int supplierId);
+    List<Warehouse> findBySupplier_SupplierId(int supplierId);
 }

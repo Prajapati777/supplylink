@@ -1,8 +1,6 @@
 package com.edutech.progressive.service.impl;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +16,13 @@ public class WarehouseServiceImplJpa implements WarehouseService {
     @Autowired
     private WarehouseRepository warehouseRepository;
 
+    public WarehouseServiceImplJpa() {
+    }
+
+    public WarehouseServiceImplJpa(WarehouseRepository warehouseRepository) {
+        this.warehouseRepository = warehouseRepository;
+    }
+
     @Override
     public List<Warehouse> getAllWarehouses() {
         return warehouseRepository.findAll();
@@ -25,17 +30,16 @@ public class WarehouseServiceImplJpa implements WarehouseService {
 
     @Override
     public int addWarehouse(Warehouse warehouse) {
-       return warehouseRepository.save(warehouse).getWarehouseId();
+        return warehouseRepository.save(warehouse).getWarehouseId();
     }
 
     @Override
     public List<Warehouse> getWarehousesSortedByCapacity() {
-       List<Warehouse> warehouses = warehouseRepository.findAll();
-       Collections.sort(warehouses, Comparator.comparingInt(Warehouse::getCapacity));
-       return warehouses;
+        List<Warehouse> warehouses = warehouseRepository.findAll();
+        Collections.sort(warehouses);
+        return warehouses;
     }
 
-    //Do not implement these methods in WarehouseServiceImplArraylist.java class
     @Override
     public void updateWarehouse(Warehouse warehouse) {
         warehouseRepository.save(warehouse);
@@ -51,9 +55,8 @@ public class WarehouseServiceImplJpa implements WarehouseService {
         return warehouseRepository.findByWarehouseId(warehouseId);
     }
 
-    //Do not implement these methods in WarehouseServiceImplArraylist.java and WarehouseServiceImplJdbc.java class
     @Override
     public List<Warehouse> getWarehouseBySupplier(int supplierId) {
-        return warehouseRepository.findBySupplierId(supplierId);
+        return warehouseRepository.findBySupplier_SupplierId(supplierId);
     }
 }

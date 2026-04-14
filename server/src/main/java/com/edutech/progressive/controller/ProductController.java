@@ -1,7 +1,6 @@
 package com.edutech.progressive.controller;
 
 import com.edutech.progressive.entity.Product;
-import com.edutech.progressive.service.ProductService;
 import com.edutech.progressive.service.impl.ProductServiceImplJpa;
 
 import org.springframework.beans.factory.annotation.Autowired;
