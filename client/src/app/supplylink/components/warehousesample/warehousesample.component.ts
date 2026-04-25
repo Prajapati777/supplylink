@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Supplier } from '../../types/Supplier';
 import { Warehouse } from '../../types/Warehouse';
 
 @Component({
@@ -6,10 +7,19 @@ import { Warehouse } from '../../types/Warehouse';
   standalone: true,
   imports: [],
   templateUrl: './warehousesample.component.html',
-  styleUrls: ['./warehousesample.component.css'],
-  template: 'Warehouse ID: {{warehouse.warehouseId}}<br>Supplier ID: {{warehouse.supplierId}}<br>Warehouse Name: ${{warehouse.warehouseName}}<br>Location: ${{warehouse.location}}<br>Capacity: ${{warehouse.capacity}}'
+  styleUrls: ['./warehousesample.component.css']
 })
 export class WarehouseSampleComponent {
-  warehouse = new Warehouse(1,"2","Flamingo","Nevada",1000);
+  warehouse: Warehouse;
+
+  constructor() {
+    this.warehouse = new Warehouse(
+      101,
+      'SUP-001',
+      'Central Warehouse',
+      'Hyderabad',
+      5000
+    );
+  }
 
 }
