@@ -1,0 +1,58 @@
+<div class="container">
+    <h2>Reactive Form = Product</h2>
+
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+
+        <div>
+            <label>Product ID:</label>
+            <input type="number" formControlName="productId"/>
+        </div>
+
+        <div>
+            <label>Warehouse ID:</label>
+            <input type="number" formControlName="warehouseId"/>
+
+            <div *ngIf="warehouseId?.invalid && warehouseId?.touched" style="color: red;">
+                <div *ngIf="warehouseId?.errors?.['required']">Warehouse ID is required.</div>
+                <div *ngIf="warehouseId?.errors?.['min']">Warehouse ID must be greater than 0.</div>
+            </div>
+        </div>
+
+        <div>
+            <label>Product Name:</label>
+            <input type="text" formControlName="productName"/>
+
+            <div *ngIf="productName?.invalid && productName?.touched" style="color: red;">
+                <div *ngIf="productName?.errors?.['required']">Product Name is required.</div>
+            </div>
+        </div>
+
+        <div>
+            <label>Product Description:</label>
+            <input type="text" formControlName="productDescription"/>
+        </div>
+
+        <div>
+            <label>Quantity:</label>
+            <input type="number" formControlName="quantity"/>
+
+            <div *ngIf="quantity?.invalid && quantity?.touched" style="color: red;">
+                <div *ngIf="quantity?.errors?.['required']">Quantity is required.</div>
+                <div *ngIf="quantity?.errors?.['min']">Quantity must be non-negative.</div>
+            </div>
+        </div>
+
+        <div>
+            <label>Price:</label>
+            <input type="number" formControlName="price"/>
+
+            <div *ngIf="price?.invalid && price?.touched" style="color: red;">
+                <div *ngIf="price?.errors?.['required']">Price is required.</div>
+                <div *ngIf="price?.errors?.['min']">Price must be greater than 0.</div>
+            </div>
+        </div>
+
+        <button type="submit" [disabled]="productForm.invalid">Submit</button>
+
+    </form>
+</div>
