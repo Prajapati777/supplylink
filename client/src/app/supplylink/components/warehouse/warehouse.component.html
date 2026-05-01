@@ -4,11 +4,6 @@
     <form [formGroup]="warehouseForm" (ngSubmit)="onSubmit()">
 
         <div>
-            <label>Warehouse ID:</label>
-            <input type="number" formControlName="warehouseId"/>
-        </div>
-
-        <div>
             <label>Supplier ID:</label>
             <input type="number" formControlName="supplierId"/>
 
@@ -40,6 +35,14 @@
                 <div *ngIf="capacity?.errors?.['required']">Capacity is required.</div>
                 <div *ngIf="capacity?.errors?.['min']">Capacity must be non-negative.</div>
             </div>
+        </div>
+
+        <div *ngIf="successMessage" style="color: green;">
+            {{ successMessage }}
+        </div>
+
+        <div *ngIf="errorMessage" style="color: red;">
+            {{ errorMessage }}
         </div>
 
         <button type="submit" [disabled]="warehouseForm.invalid">Submit</button>
