@@ -1,5 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit } from "@angular/core";
+import { Warehouse } from '../../types/Warehouse';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Supplier } from "../../types/Supplier";
+//import { SupplyLinkService } from "../../services/supplylink.service";
+import { HttpErrorResponse } from "@angular/common/http";
+
 
 @Component({
   selector: 'app-warehouse',
@@ -7,63 +12,63 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./warehouse.component.scss']
 })
 export class WarehouseComponent implements OnInit {
-
   warehouseForm!: FormGroup;
-  successMessage: string = '';
-  errorMessage: string = '';
+  warehouse: Warehouse | null = null;
+  successMessage: string | null = null;
+  errorMessage: string | null = null;
+  suppliers: Supplier[] = [];
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+  //  private supplyLinkService: SupplyLinkService
+  ) { }
 
   ngOnInit(): void {
+    this.loadSuppliers();
     this.warehouseForm = this.fb.group({
-      supplierId: ['', [Validators.required, Validators.min(1)]],
-      warehouseName: ['', Validators.required],
-      location: [''],
-      capacity: ['', [Validators.required, Validators.min(0)]]
+      supplier: [null, [Validators.required]],
+      warehouseName: ["", [Validators.required]],
+      location: [""],
+      capacity: ["", [Validators.required, Validators.min(0)]],
     });
   }
 
-  get supplierId() {
-    return this.warehouseForm.get('supplierId');
-  }
-
-  get warehouseName() {
-    return this.warehouseForm.get('warehouseName');
-  }
-
-  get location() {
-    return this.warehouseForm.get('location');
-  }
-
-  get capacity() {
-    return this.warehouseForm.get('capacity');
-  }
-
-  simulateBackendError(): boolean {
-    const existingWarehouseNames = ['Central Warehouse', 'Main Warehouse', 'Supply Hub'];
-    const enteredWarehouseName = this.warehouseForm.value.warehouseName;
-
-    return existingWarehouseNames.includes(enteredWarehouseName);
+  loadSuppliers(): void {
+    // this.supplyLinkService.getAllSuppliers().subscribe({
+    //   next: (response) => {
+    //     this.suppliers = response;
+    //   },
+    //   error: (error) => console.log('Error in loading suppliers')
+    // });
   }
 
   onSubmit(): void {
-    this.successMessage = '';
-    this.errorMessage = '';
-
     if (this.warehouseForm.valid) {
-
-      if (this.simulateBackendError()) {
-        this.errorMessage = 'Warehouse name already exists. Please enter a different warehouse name.';
-        return;
-      }
-
-      console.log('Warehouse Form Data:', this.warehouseForm.value);
-      this.successMessage = 'Warehouse details submitted successfully!';
-      alert('Warehouse details submitted successfully!');
-
+      // this.supplyLinkService.addWarehouse(this.warehouseForm.value).subscribe({
+      //   next: (response) => {
+      //     this.warehouse = response;
+      //     this.successMessage = 'Warehouse created successfully';
+      //     this.errorMessage = null;
+      //     this.warehouseForm.reset();
+      //   },
+      //   error: (error) => this.handleError(error)
+      // })
     } else {
-      this.warehouseForm.markAllAsTouched();
-      this.errorMessage = 'Please fill all required fields correctly.';
+      this.errorMessage = 'Please fill out all required fields correctly.';
+      this.successMessage = null;
     }
+  }
+
+  private handleError(error: HttpErrorResponse): void {
+    if (error.error instanceof ErrorEvent) {
+      this.errorMessage = `Client-side error: ${error.error.message}`;
+    } else {
+      this.errorMessage = `Server-side error: ${error.status} ${error.message}`;
+      if (error.status === 400) {
+        this.errorMessage = 'Bad request. Please check your input.';
+      }
+    }
+    this.successMessage = null;
+    console.error('An error occurred:', this.errorMessage);
   }
 }
