@@ -1,13 +1,17 @@
 package com.edutech.progressive.service.impl;
 
+import com.edutech.progressive.entity.Warehouse;
+import com.edutech.progressive.service.WarehouseService;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import com.edutech.progressive.entity.Warehouse;
-import com.edutech.progressive.service.WarehouseService;
+import org.springframework.stereotype.Service;
 
+@Service
 public class WarehouseServiceImplArraylist implements WarehouseService {
+
     private static List<Warehouse> warehouseList = new ArrayList<>();
 
     @Override
@@ -24,7 +28,7 @@ public class WarehouseServiceImplArraylist implements WarehouseService {
     @Override
     public List<Warehouse> getWarehousesSortedByCapacity() {
         List<Warehouse> sortedWarehouses = warehouseList;
-        sortedWarehouses.sort(Comparator.comparing(Warehouse::getCapacity));
+        sortedWarehouses.sort(Comparator.comparing(Warehouse::getCapacity)); // Sort by supplier name
         return sortedWarehouses;
     }
 
@@ -32,6 +36,4 @@ public class WarehouseServiceImplArraylist implements WarehouseService {
     public void emptyArrayList() {
         warehouseList = new ArrayList<>();
     }
-
-
 }

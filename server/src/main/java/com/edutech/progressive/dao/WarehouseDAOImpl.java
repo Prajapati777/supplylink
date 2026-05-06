@@ -1,125 +1,161 @@
 package com.edutech.progressive.dao;
 
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
 import com.edutech.progressive.config.DatabaseConnectionManager;
-import com.edutech.progressive.entity.Supplier;
 import com.edutech.progressive.entity.Warehouse;
+
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
+@Repository
 public class WarehouseDAOImpl implements WarehouseDAO {
 
     @Override
     public int addWarehouse(Warehouse warehouse) throws SQLException {
-        String sql = "INSERT INTO warehouse (supplier_id, warehouse_name, location, capacity) VALUES (?, ?, ?, ?)";
+        Connection connection = null;
+        PreparedStatement statement = null;
+        int generatedID = -1;
 
-        try (Connection connection = DatabaseConnectionManager.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try {
+            connection = DatabaseConnectionManager.getConnection();
+            String sql = "INSERT INTO warehouse (supplier_id, warehouse_name, location, capacity) VALUES (?, ?, ?, ?)";
+            statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 
-            ps.setInt(1, warehouse.getSupplier().getSupplierId());
-            ps.setString(2, warehouse.getWarehouseName());
-            ps.setString(3, warehouse.getLocation());
-            ps.setInt(4, warehouse.getCapacity());
+            statement.setInt(1, warehouse.getSupplier().getSupplierId());
+            statement.setString(2, warehouse.getWarehouseName());
+            statement.setString(3, warehouse.getLocation());
+            statement.setDouble(4, warehouse.getCapacity());
+            statement.executeUpdate();
 
-            int rowsAffected = ps.executeUpdate();
-
-            if (rowsAffected > 0) {
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        return rs.getInt(1);
-                    }
-                }
+            ResultSet resultSet = statement.getGeneratedKeys();
+            if (resultSet.next()) {
+                generatedID = resultSet.getInt(1);
+                warehouse.setWarehouseId(generatedID);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e; // Rethrow the exception
+        } finally {
+            // Close resources in the reverse order of opening
+            if (statement != null) {
+                statement.close();
             }
         }
-
-        return -1;
+        return generatedID;
     }
 
     @Override
     public Warehouse getWarehouseById(int warehouseId) throws SQLException {
-        String sql = "SELECT * FROM warehouse WHERE warehouse_id = ?";
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
 
-        try (Connection connection = DatabaseConnectionManager.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)) {
+        try {
+            connection = DatabaseConnectionManager.getConnection();
+            String sql = "SELECT * FROM warehouse WHERE warehouse_id = ?";
+            statement = connection.prepareStatement(sql);
+            statement.setInt(1, warehouseId);
+            resultSet = statement.executeQuery();
 
-            ps.setInt(1, warehouseId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Warehouse warehouse = new Warehouse();
-                    warehouse.setWarehouseId(rs.getInt("warehouse_id"));
-
-                    Supplier supplier = new Supplier();
-                    supplier.setSupplierId(rs.getInt("supplier_id"));
-                    warehouse.setSupplier(supplier);
-
-                    warehouse.setWarehouseName(rs.getString("warehouse_name"));
-                    warehouse.setLocation(rs.getString("location"));
-                    warehouse.setCapacity(rs.getInt("capacity"));
-                    return warehouse;
-                }
+            if (resultSet.next()) {
+                int supplierId = resultSet.getInt("supplier_id");
+                String warehouseName = resultSet.getString("warehouse_name");
+                String location = resultSet.getString("location");
+                int capacity = resultSet.getInt("capacity");
+                return new Warehouse(warehouseId, supplierId, warehouseName, location, capacity);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e; // Rethrow the exception
+        } finally {
+            if (connection != null) {
+                connection.close();
             }
         }
-
         return null;
     }
 
     @Override
     public void updateWarehouse(Warehouse warehouse) throws SQLException {
-        String sql = "UPDATE warehouse SET supplier_id = ?, warehouse_name = ?, location = ?, capacity = ? WHERE warehouse_id = ?";
+        Connection connection = null;
+        PreparedStatement statement = null;
 
-        try (Connection connection = DatabaseConnectionManager.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setInt(1, warehouse.getSupplier().getSupplierId());
-            ps.setString(2, warehouse.getWarehouseName());
-            ps.setString(3, warehouse.getLocation());
-            ps.setInt(4, warehouse.getCapacity());
-            ps.setInt(5, warehouse.getWarehouseId());
-
-            ps.executeUpdate();
+        try {
+            connection = DatabaseConnectionManager.getConnection();
+            String sql = "UPDATE warehouse SET supplier_id =?, warehouse_name =?, location =?, capacity =? WHERE warehouse_id = ?";
+            statement = connection.prepareStatement(sql);
+            statement.setInt(1, warehouse.getSupplier().getSupplierId());
+            statement.setString(2, warehouse.getWarehouseName());
+            statement.setString(3, warehouse.getLocation());
+            statement.setInt(4, warehouse.getCapacity());
+            statement.setInt(5, warehouse.getWarehouseId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e; // Rethrow the exception
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
         }
     }
 
     @Override
     public void deleteWarehouse(int warehouseId) throws SQLException {
-        String sql = "DELETE FROM warehouse WHERE warehouse_id = ?";
+        Connection connection = null;
+        PreparedStatement statement = null;
 
-        try (Connection connection = DatabaseConnectionManager.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setInt(1, warehouseId);
-            ps.executeUpdate();
+        try {
+            connection = DatabaseConnectionManager.getConnection();
+            String sql = "DELETE FROM warehouse WHERE warehouse_id = ?";
+            statement = connection.prepareStatement(sql);
+            statement.setInt(1, warehouseId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e; // Rethrow the exception
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
         }
     }
 
     @Override
     public List<Warehouse> getAllWarehouse() throws SQLException {
-        String sql = "SELECT * FROM warehouse";
         List<Warehouse> warehouses = new ArrayList<>();
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
 
-        try (Connection connection = DatabaseConnectionManager.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try {
+            connection = DatabaseConnectionManager.getConnection();
+            String sql = "SELECT * FROM warehouse";
+            statement = connection.prepareStatement(sql);
+            resultSet = statement.executeQuery();
 
-            while (rs.next()) {
-                Warehouse warehouse = new Warehouse();
-                warehouse.setWarehouseId(rs.getInt("warehouse_id"));
-
-                Supplier supplier = new Supplier();
-                supplier.setSupplierId(rs.getInt("supplier_id"));
-                warehouse.setSupplier(supplier);
-
-                warehouse.setWarehouseName(rs.getString("warehouse_name"));
-                warehouse.setLocation(rs.getString("location"));
-                warehouse.setCapacity(rs.getInt("capacity"));
-
-                warehouses.add(warehouse);
+            while (resultSet.next()) {
+                int warehouseId = resultSet.getInt("warehouse_id");
+                int supplierId = resultSet.getInt("supplier_id");
+                String warehouseName = resultSet.getString("warehouse_name");
+                String location = resultSet.getString("location");
+                int capacity = resultSet.getInt("capacity");
+                warehouses.add(new Warehouse(warehouseId, supplierId, warehouseName, location, capacity));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e; // Rethrow the exception
+        } finally {
+            if (connection != null) {
+                connection.close();
             }
         }
 

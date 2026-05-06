@@ -5,6 +5,9 @@ import com.edutech.progressive.entity.Warehouse;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public interface WarehouseService {
     List<Warehouse> getAllWarehouses() throws SQLException;
 
@@ -15,7 +18,7 @@ public interface WarehouseService {
     default public void emptyArrayList() {
     }
 
-    // Do not implement these methods in WarehouseServiceImplArraylist.java class
+    //Do not implement these methods in WarehouseServiceImplArraylist.java class
     default void updateWarehouse(Warehouse warehouse) throws SQLException {
     }
 
@@ -26,8 +29,7 @@ public interface WarehouseService {
         return null;
     }
 
-    // Do not implement these methods in WarehouseServiceImplArraylist.java and
-    // WarehouseServiceImplJdbc.java class
+    //Do not implement these methods in WarehouseServiceImplArraylist.java and WarehouseServiceImplJdbc.java class
     default List<Warehouse> getWarehouseBySupplier(int supplierId) throws SQLException {
         return null;
     }
