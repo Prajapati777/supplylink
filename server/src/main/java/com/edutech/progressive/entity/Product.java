@@ -1,18 +1,26 @@
-
 package com.edutech.progressive.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 public class Product {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int productId;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "warehouseId")
+    @ManyToOne
+    @JoinColumn(name = "warehouse_id")
+    @JsonIgnoreProperties({"products", "supplier"})
     private Warehouse warehouse;
+
     private String productName;
     private String productDescription;
     private int quantity;
@@ -21,9 +29,9 @@ public class Product {
     public Product() {
     }
 
-    public Product(int productId, int warehouseId, String productName, String productDescription, int quantity, Long price) {
+    public Product(int productId, Warehouse warehouse, String productName, String productDescription, int quantity, Long price) {
         this.productId = productId;
-        this.warehouse.setWarehouseId(warehouseId);
+        this.warehouse = warehouse;
         this.productName = productName;
         this.productDescription = productDescription;
         this.quantity = quantity;
