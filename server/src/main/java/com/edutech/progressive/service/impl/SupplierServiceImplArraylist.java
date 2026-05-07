@@ -1,22 +1,18 @@
 package com.edutech.progressive.service.impl;
 
-import com.edutech.progressive.entity.Supplier;
-import com.edutech.progressive.service.SupplierService;
-
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import com.edutech.progressive.entity.Supplier;
+import com.edutech.progressive.service.SupplierService;
 
 @Service
 public class SupplierServiceImplArraylist implements SupplierService {
 
-    private static List<Supplier> supplierList = new ArrayList<>();
+    List<Supplier> supplierList = new ArrayList<>();
 
     @Override
     public List<Supplier> getAllSuppliers() {
@@ -32,7 +28,7 @@ public class SupplierServiceImplArraylist implements SupplierService {
     @Override
     public List<Supplier> getAllSuppliersSortedByName() {
         List<Supplier> sortedSupplier = supplierList;
-        sortedSupplier.sort(Comparator.comparing(Supplier::getSupplierName)); // Sort by supplier name
+        sortedSupplier.sort(Comparator.comparing(Supplier::getSupplierName)); 
         return sortedSupplier;
     }
 
@@ -40,4 +36,5 @@ public class SupplierServiceImplArraylist implements SupplierService {
     public void emptyArrayList() {
         supplierList = new ArrayList<>();
     }
+
 }

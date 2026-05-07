@@ -1,15 +1,14 @@
 package com.edutech.progressive.service.impl;
 
+import java.sql.SQLException;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.edutech.progressive.entity.Insurance;
 import com.edutech.progressive.repository.InsuranceRepository;
 import com.edutech.progressive.service.InsuranceService;
-
-import java.sql.SQLException;
-import java.util.List;
-
 
 @Service
 public class InsuranceServiceImpl implements InsuranceService {
@@ -18,13 +17,19 @@ public class InsuranceServiceImpl implements InsuranceService {
     InsuranceRepository insuranceRepository;
 
     @Override
-    public List<Insurance> getAllInsurances() throws SQLException {
-        return insuranceRepository.findAll();
+    public int addInsurance(Insurance insurance) throws SQLException {
+        return insuranceRepository.save(insurance).getInsuranceId();
+
     }
 
     @Override
-    public int addInsurance(Insurance insurance) throws SQLException {
-        return insuranceRepository.save(insurance).getInsuranceId();
+    public void deleteInsurance(int insuranceId) throws SQLException {
+        insuranceRepository.deleteById(insuranceId);
+    }
+
+    @Override
+    public List<Insurance> getAllInsurances() throws SQLException {
+        return insuranceRepository.findAll();
     }
 
     @Override
@@ -37,8 +42,4 @@ public class InsuranceServiceImpl implements InsuranceService {
         insuranceRepository.save(insurance);
     }
 
-    @Override
-    public void deleteInsurance(int insuranceId) throws SQLException {
-        insuranceRepository.deleteById(insuranceId);
-    }
 }

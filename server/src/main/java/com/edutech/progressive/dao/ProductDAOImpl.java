@@ -1,168 +1,134 @@
 package com.edutech.progressive.dao;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.stereotype.Repository;
-
-import java.sql.*;
-
-import com.edutech.progressive.config.DatabaseConnectionManager;
-import com.edutech.progressive.entity.Product;
-
-  
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-@Repository
+import com.edutech.progressive.config.DatabaseConnectionManager;
+import com.edutech.progressive.entity.Product;
+import com.edutech.progressive.entity.Warehouse;
+
 public class ProductDAOImpl implements ProductDAO {
 
     @Override
     public int addProduct(Product product) throws SQLException {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        int generatedID = -1;
+        String sql = "INSERT INTO product (warehouse_id, product_name, product_description, quantity, price) VALUES (?, ?, ?, ?, ?)";
 
-        try {
-            connection = DatabaseConnectionManager.getConnection();
-            String sql = "INSERT INTO product (warehouse_id, product_name, product_description, quantity, price) VALUES (?, ?, ?, ?, ?)";
-            statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-            statement.setDouble(1, product.getWarehouse().getWarehouseId());
-            statement.setString(2, product.getProductName());
-            statement.setString(3, product.getProductDescription());
-            statement.setInt(4, product.getQuantity());
-            statement.setDouble(5, product.getPrice());
-            statement.executeUpdate();
+        try (Connection connection = DatabaseConnectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ResultSet resultSet = statement.getGeneratedKeys();
-            if (resultSet.next()) {
-                generatedID = resultSet.getInt(1);
-                product.setProductId(generatedID);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e; // Rethrow the exception
-        } finally {
-            // Close resources in the reverse order of opening
-            if (statement != null) {
-                statement.close();
+            ps.setInt(1, product.getWarehouse().getWarehouseId());
+            ps.setString(2, product.getProductName());
+            ps.setString(3, product.getProductDescription());
+            ps.setInt(4, product.getQuantity());
+            ps.setBigDecimal(5, BigDecimal.valueOf(product.getPrice()));
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        int generatedId = rs.getInt(1);
+
+                        product.setProductId(generatedId);
+
+                        return generatedId;
+                    }
+                }
             }
         }
-        return generatedID;
+
+        return -1;
     }
 
     @Override
     public Product getProductById(int productId) throws SQLException {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+        String sql = "SELECT * FROM product WHERE product_id = ?";
 
-        try {
-            connection = DatabaseConnectionManager.getConnection();
-            String sql = "SELECT * FROM product WHERE product_id = ?";
-            statement = connection.prepareStatement(sql);
-            statement.setInt(1, productId);
-            resultSet = statement.executeQuery();
+        try (Connection connection = DatabaseConnectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            if (resultSet.next()) {
-                int warehouseId = resultSet.getInt("warehouse_id");
-                String productName = resultSet.getString("product_name");
-                String productDescription = resultSet.getString("product_description");
-                int quantity = resultSet.getInt("quantity");
-                Long price = (long) resultSet.getDouble("price");
-                return new Product(productId, warehouseId, productName, productDescription, quantity, price);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e; // Rethrow the exception
-        } finally {
-            if (connection != null) {
-                connection.close();
+            ps.setInt(1, productId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Product product = new Product();
+                    product.setProductId(rs.getInt("product_id"));
+
+                    Warehouse warehouse = new Warehouse();
+                    warehouse.setWarehouseId(rs.getInt("warehouse_id"));
+                    product.setWarehouse(warehouse);
+
+                    product.setProductName(rs.getString("product_name"));
+                    product.setProductDescription(rs.getString("product_description"));
+                    product.setQuantity(rs.getInt("quantity"));
+                    product.setPrice(rs.getBigDecimal("price").longValue());
+                    return product;
+                }
             }
         }
+
         return null;
     }
 
     @Override
     public void updateProduct(Product product) throws SQLException {
-        Connection connection = null;
-        PreparedStatement statement = null;
+        String sql = "UPDATE product SET warehouse_id = ?, product_name = ?, product_description = ?, quantity = ?, price = ? WHERE product_id = ?";
 
-        try {
-            connection = DatabaseConnectionManager.getConnection();
-            String sql = "UPDATE product SET warehouse_id = ?, product_name = ?, product_description = ?, quantity =?, price =? WHERE product_id = ?";
-            statement = connection.prepareStatement(sql);
-            statement.setInt(1, product.getWarehouse().getWarehouseId());
-            statement.setString(2, product.getProductName());
-            statement.setString(3, product.getProductDescription());
-            statement.setInt(4, product.getQuantity());
-            statement.setDouble(5, product.getPrice());
-            statement.setInt(6, product.getProductId());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e; // Rethrow the exception
-        } finally {
-            if (connection != null) {
-                connection.close();
-            }
+        try (Connection connection = DatabaseConnectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, product.getWarehouse().getWarehouseId());
+            ps.setString(2, product.getProductName());
+            ps.setString(3, product.getProductDescription());
+            ps.setInt(4, product.getQuantity());
+            ps.setBigDecimal(5, BigDecimal.valueOf(product.getPrice()));
+            ps.setInt(6, product.getProductId());
+
+            ps.executeUpdate();
         }
     }
 
     @Override
     public void deleteProduct(int productId) throws SQLException {
-        Connection connection = null;
-        PreparedStatement statement = null;
+        String sql = "DELETE FROM product WHERE product_id = ?";
 
-        try {
-            connection = DatabaseConnectionManager.getConnection();
-            String sql = "DELETE FROM product WHERE product_id = ?";
-            statement = connection.prepareStatement(sql);
-            statement.setInt(1, productId);
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e; // Rethrow the exception
-        } finally {
-            if (connection != null) {
-                connection.close();
-            }
+        try (Connection connection = DatabaseConnectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, productId);
+            ps.executeUpdate();
         }
     }
 
     @Override
     public List<Product> getAllProducts() throws SQLException {
+        String sql = "SELECT * FROM product";
         List<Product> products = new ArrayList<>();
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
 
-        try {
-            connection = DatabaseConnectionManager.getConnection();
-            String sql = "SELECT * FROM product";
-            statement = connection.prepareStatement(sql);
-            resultSet = statement.executeQuery();
+        try (Connection connection = DatabaseConnectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
-            while (resultSet.next()) {
-                int productId = resultSet.getInt("product_id");
-                int warehouseId = resultSet.getInt("warehouse_id");
-                String productName = resultSet.getString("product_name");
-                String productDescription = resultSet.getString("product_description");
-                int quantity = resultSet.getInt("quantity");
-                Long price = (long) resultSet.getDouble("price");
-                products.add(new Product(productId, warehouseId, productName, productDescription, quantity, price));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e; // Rethrow the exception
-        } finally {
-            if (connection != null) {
-                connection.close();
+            while (rs.next()) {
+                Product product = new Product();
+                product.setProductId(rs.getInt("product_id"));
+
+                Warehouse warehouse = new Warehouse();
+                warehouse.setWarehouseId(rs.getInt("warehouse_id"));
+                product.setWarehouse(warehouse);
+
+                product.setProductName(rs.getString("product_name"));
+                product.setProductDescription(rs.getString("product_description"));
+                product.setQuantity(rs.getInt("quantity"));
+                product.setPrice(rs.getBigDecimal("price").longValue());
+
+                products.add(product);
             }
         }
 

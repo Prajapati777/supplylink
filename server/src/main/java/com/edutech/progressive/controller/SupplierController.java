@@ -1,23 +1,15 @@
 package com.edutech.progressive.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import com.edutech.progressive.entity.Supplier;
 import com.edutech.progressive.exception.SupplierAlreadyExistsException;
 import com.edutech.progressive.exception.SupplierDoesNotExistException;
 import com.edutech.progressive.service.impl.SupplierServiceImplArraylist;
 import com.edutech.progressive.service.impl.SupplierServiceImplJpa;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import java.sql.SQLException;
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -79,12 +71,8 @@ public class SupplierController {
 
     @DeleteMapping("/{supplierId}")
     public ResponseEntity<Void> deleteSupplier(@PathVariable int supplierId) {
-        try {
             supplierServiceImplJpa.deleteSupplier(supplierId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (SQLException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @GetMapping("/fromArrayList")

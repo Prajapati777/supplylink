@@ -1,34 +1,75 @@
 package com.edutech.progressive.config;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Properties;
 
 public class DatabaseConnectionManager {
+
     private static final Properties properties = new Properties();
 
     static {
         loadProperties();
     }
 
-    private static void loadProperties() {
-        try (InputStream input = DatabaseConnectionManager.class.getClassLoader().getResourceAsStream("application.properties")) {
+    public static void loadProperties() {
+        try (InputStream input = DatabaseConnectionManager.class.getClassLoader()
+                .getResourceAsStream("application.properties")) {
             if (input == null) {
-                throw new IllegalStateException("resource.properties not found in classpath");
+                throw new RuntimeException("Unable to find application.properties");
             }
             properties.load(input);
-        } catch (IOException e) {
-            throw new RuntimeException("Error loading properties file", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error loading database configuration", e);
         }
     }
 
-    public static Connection getConnection() throws SQLException {
-        String url = properties.getProperty("spring.datasource.url");
-        String user = properties.getProperty("spring.datasource.username");
-        String password = properties.getProperty("spring.datasource.password");
-        return DriverManager.getConnection(url, user, password);
+    // new database connection using DriverManager.
+    public static Connection getConnection() {
+        try {
+            return DriverManager.getConnection(
+                    properties.getProperty("jdbc.url"),
+                    properties.getProperty("jdbc.username"),
+                    properties.getProperty("jdbc.password"));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to establish database connection", e);
+        }
     }
 }
+
+/*
+ * 
+ * 1. Supplier Table
+ * CREATE TABLE supplier (
+ * supplier_id INT AUTO_INCREMENT PRIMARY KEY,
+ * supplier_name VARCHAR(100) NOT NULL,
+ * email VARCHAR(100) NOT NULL,
+ * username VARCHAR(255) NOT NULL,
+ * password VARCHAR(255) NOT NULL,
+ * phone VARCHAR(20),
+ * address VARCHAR(255),
+ * role VARCHAR(50)
+ * );
+ * 
+ * 2. Warehouse Table
+ * CREATE TABLE warehouse (
+ * warehouse_id INT PRIMARY KEY AUTO_INCREMENT,
+ * supplier_id INT NOT NULL,
+ * warehouse_name VARCHAR(100) NOT NULL,
+ * location VARCHAR(255) NOT NULL,
+ * capacity INT NOT NULL
+ * );
+ * 
+ * 3. Product Table
+ * CREATE TABLE product (
+ * product_id INT PRIMARY KEY AUTO_INCREMENT,
+ * warehouse_id INT NOT NULL,
+ * product_name VARCHAR(100) NOT NULL,
+ * product_description TEXT,
+ * quantity INT NOT NULL,
+ * price DECIMAL(10, 2) NOT NULL
+ * );
+ * 
+ * 
+ */
