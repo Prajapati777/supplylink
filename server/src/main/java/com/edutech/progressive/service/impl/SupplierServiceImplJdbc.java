@@ -9,6 +9,7 @@ import com.edutech.progressive.dao.SupplierDAO;
 import com.edutech.progressive.entity.Supplier;
 import com.edutech.progressive.service.SupplierService;
 
+// Working completely
 public class SupplierServiceImplJdbc implements SupplierService {
     private SupplierDAO supplierDAO;
 
