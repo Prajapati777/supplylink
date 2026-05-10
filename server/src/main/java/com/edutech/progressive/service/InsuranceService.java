@@ -17,3 +17,5 @@ public interface InsuranceService {
 
     void deleteInsurance(int insuranceId)throws SQLException;
 }
+
+//insurance
